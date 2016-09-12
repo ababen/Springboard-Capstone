@@ -19,3 +19,8 @@ Here is how we will proceed with your project. Treat this as a pseudo code.<br /
 3. Remove stopwords i.e. words that don't add any value<br />
 4. Convert the data to a document matrix<br />
 5. plot the data<br />
+#Notes from calls:
+sparse matrix<br />
+stop words<br />
+https://cran.r-project.org/web/packages/tm/index.html<br />
+https://regex101.com/<br />
