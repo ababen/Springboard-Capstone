@@ -5,12 +5,16 @@
 5. In brief, outline your approach to solving this problem (knowing that this might change later).<br />
 6. What are your deliverables? Typically, this would include code, along with a paper and/or a slide deck.<br />
 <br />
-Links to Kaggles: <br />
+
+# Links to Kaggles: <br />
+
 https://www.kaggle.com/activegalaxy/isis-related-tweets <br />
 https://www.kaggle.com/kzaman/how-isis-uses-twitter <br />
 https://www.kaggle.com/benhamner/2016-us-election <br />
 <br />
-Start Instructions: <br />
+
+# Start Instructions<br />
+
 <br />
 Here is how we will proceed with your project. Treat this as a pseudo code.<br />
 <br />
@@ -19,8 +23,13 @@ Here is how we will proceed with your project. Treat this as a pseudo code.<br /
 3. Remove stopwords i.e. words that don't add any value<br />
 4. Convert the data to a document matrix<br />
 5. plot the data<br />
-#Notes from calls:
+<br />
+
+# Notes from calls <br />
+
+<br />
 sparse matrix<br />
-stop words<br />
+stopwords<br />
 https://cran.r-project.org/web/packages/tm/index.html<br />
 https://regex101.com/<br />
+http://regexr.com/<br />
