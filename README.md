@@ -9,6 +9,7 @@
 # Ideas
 * Create list of all words which need to be standardized.
 * Figure out how to apply the dictionaries which already exist.
+* Is there a list of twitter/internet jargon which can be converted to dictionary text?
 * Figure out if I can get the Google Jigsaw (http://www.refinery29.com/2016/09/122793/google-jigsaw-isis)
 
 # Directions from Instructor<br />
