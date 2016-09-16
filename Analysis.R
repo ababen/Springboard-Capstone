@@ -1,5 +1,11 @@
 library("dplyr")
+library("tidyr")
+library(tm)
+library("ggplot2")
+library(wordcloud)
+
 tweets <- read.csv("~/Springboard-Capstone/how-isis-uses-twitter/tweets.csv")
+
 class(tweets)
 names(tweets)
 str(tweets)
@@ -12,3 +18,6 @@ stopwords <- c("i","me","my","myself","we","our","ours","ourselves","you","your"
 
 # Analysis begins
 
+corp <- Corpus(DataframeSource(tweets[8]))
+dtm <- DocumentTermMatrix(corp)
+print(dtm)
