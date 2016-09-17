@@ -3,21 +3,59 @@ library("tidyr")
 library(tm)
 library("ggplot2")
 library(wordcloud)
+library(stringr)
 
-tweets <- read.csv("~/Springboard-Capstone/how-isis-uses-twitter/tweets.csv")
+# Load dataset
+tweet <- read.csv("~/Springboard-Capstone/how-isis-uses-twitter/tweets.csv")
 
-class(tweets)
-names(tweets)
-str(tweets)
-summary(tweets)
-View(tweets)
+tweet <- as.character(tweet$tweets)
 
-# Setup
+# Removing links
+tweet = gsub("(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", " ", tweet)
 
-stopwords <- c("i","me","my","myself","we","our","ours","ourselves","you","your","yours","yourself","yourselves","he","him","his","himself","she","her","hers","herself","it","its","itself","they","them","their","theirs","themselves","what","which","who","whom","this","that","these","those","am","is","are","was","were","be","been","being","have","has","had","having","do","does","did","doing","a","an","the","and","but","if","or","because","as","until","while","of","at","by","for","with","about","against","between","into","through","during","before","after","above","below","to","from","up","down","in","out","on","off","over","under","again","further","then","once","here","there","when","where","why","how","all","any","both","each","few","more","most","other","some","such","no","nor","not","only","own","same","so","than","too","very","can","will","just","don't","should","now")
+# Removing retweets
+tweet = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", " ", tweet)
+
+# Removing hashtags
+tweet = gsub("#\\w+", " ", tweet)
+
+# Removing @people
+tweet = gsub("@\\w+", " ", tweet)
+
+# Removing punctuations
+tweet = gsub("[[:punct:]]", " ", tweet)
+
+# Removing numbers
+tweet = gsub("[[:digit:]]", " ", tweet)
+
+# Removing emojis
+tweet<-str_replace_all(tweet,"[^[:graph:]]"," ")
+tweet <- str_replace_all(tweet,'https'," ")
+tweet <- str_replace_all(tweet,'amp'," ")
+
+# Removing non-english characters
+tweet1 <- grep('tweet',iconv(tweet,'latin1','ASCII',sub='tweet'))
+tweet<-tweet[-tweet1]
+
+# Removing spaces
+tweet = gsub("[ \t]{2,}", " ", tweet)
+tweet = gsub("^\\s+|\\s+$", "", tweet)
+
+corp <- Corpus(VectorSource(tweet))
+corp <- tm_map(corp,removeWords,c(stopwords('english'),stopwords('SMART'),'required','responded'))
+tdm <- TermDocumentMatrix(corp) 
+dtm <- DocumentTermMatrix(corp)
+
+freq.terms <- findFreqTerms(tdm,lowfreq=250)
+term.freq <- rowSums(as.matrix(tdm))
+term.freq <- subset(term.freq, term.freq >= 250)
+df <- data.frame(term = names(term.freq), freq = term.freq)
 
 # Analysis begins
+ggplot(df, aes(x = term, y=freq, reorder(term.freq))) +
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  labs(title="Top 20 words in ISIS tweets")
 
-corp <- Corpus(DataframeSource(tweets[8]))
-dtm <- DocumentTermMatrix(corp)
-print(dtm)
+wordcloud(words = df$term, freq = df$freq, random.order=FALSE, rot.per=0.25, 
+          colors=brewer.pal(8, "Dark2"))
