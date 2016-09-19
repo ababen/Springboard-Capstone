@@ -1,3 +1,6 @@
+# Project Quick Facts
+* There are 853 tweets in 2015, and 16,557 in 2016.
+
 # Springboard-Capstone
 1. What is the problem you want to solve?<br />
 2. Who is your client and why do they care about this problem? In other words, what will your client DO or DECIDE based on your analysis. That they wouldn’t have otherwise?<br />
