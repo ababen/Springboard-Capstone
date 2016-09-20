@@ -6,11 +6,7 @@
 6. What are your deliverables? Typically, this would include code, along with a paper and/or a slide deck.<br />
 <br />
 
-# Ideas
-* Create list of all words which need to be standardized.
-* Figure out how to apply the dictionaries which already exist.
-* Is there a list of twitter/internet jargon which can be converted to dictionary text?
-* Figure out if I can get the Google Jigsaw (http://www.refinery29.com/2016/09/122793/google-jigsaw-isis)
+# See Wiki for more information
 
 # Links to Kaggles: <br />
 https://www.kaggle.com/activegalaxy/isis-related-tweets <br />
