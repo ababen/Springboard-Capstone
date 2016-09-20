@@ -6,7 +6,7 @@
 6. What are your deliverables? Typically, this would include code, along with a paper and/or a slide deck.<br />
 <br />
 
-# See Wiki for more information
+# ***See Wiki for more information***
 
 # Links to Kaggles: <br />
 https://www.kaggle.com/activegalaxy/isis-related-tweets <br />
