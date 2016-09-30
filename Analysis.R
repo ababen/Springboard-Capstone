@@ -1,5 +1,7 @@
 # Load dataset
-tweet <- read.csv("~/Springboard-Capstone/how-isis-uses-twitter/tweets.csv")
+rm(list=ls())
+setwd("~/R/Springboard-Capstone")
+tweet <- read.csv("how-isis-uses-twitter/tweets.csv")
 
 tweet <- as.character(tweet$tweets)
 
@@ -24,7 +26,7 @@ library(tm)
 corp <- Corpus(VectorSource(tweet))
 corp <- tm_map(corp,removeWords,c(stopwords('english'),stopwords('SMART'),'required','responded'))
 tdm <- TermDocumentMatrix(corp) 
-dtm <- DocumentTermMatrix(corp)
+# dtm <- DocumentTermMatrix(corp) # Currently not being used
 
 freq.terms <- findFreqTerms(tdm,lowfreq=250)
 term.freq <- rowSums(as.matrix(tdm))
@@ -42,4 +44,14 @@ library(wordcloud)
 wordcloud(words = df$term, freq = df$freq, random.order=FALSE, rot.per=0.25, 
           colors=brewer.pal(8, "Dark2"))
 
-# Force commit
+library(RTextTools)
+library(e1071)
+
+# Train the model
+mat = as.matrix(tdm)
+classifier = naiveBayes(mat[1:10,], as.factor(tdm[1:10,2]))
+
+# Test the validity
+predicted = predict(classifier, mat[11:15,]); predicted
+table(tdm[11:15, 2], predicted)
+recall_accuracy(tdm[11:15, 2], predicted)
