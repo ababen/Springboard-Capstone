@@ -1,55 +1,10 @@
 # Load dataset
-tweet <- read.csv("~/Springboard-Capstone/how-isis-uses-twitter/tweets.csv")
-pos.words <- df <- read.table("<FileName>.txt", header = FALSE)
+rm(list=ls())
+setwd("~/R/Springboard-Capstone")
+tweet <- read.csv("how-isis-uses-twitter/tweets.csv")
+
 tweet <- as.character(tweet$tweets)
 
-# Function score.sentiment
-  score.sentiment = function(sentences, pos.words, neg.words, exc.words, .progress='none')
-  {
-    require(plyr)
-    require(stringr)
-    
-    # we got a vector of sentences. plyr will handle a list or a vector as an "l" for us
-    # we want a simple array of scores back, so we use "l" + "a" + "ply" = laply:
-    scores = laply(sentences, function(sentence, pos.words, neg.words, exc.words) {
-      
-      # clean up sentences with R's regex-driven global substitute, gsub():
-      sentence = gsub('[[:punct:]]', '', sentence)
-      sentence = gsub('[[:cntrl:]]', '', sentence)
-      sentence = gsub('\\d+', '', sentence)
-      # and convert to lower case:
-      sentence = tolower(sentence)
-      
-      # split into words. str_split is in the stringr package
-      word.list = str_split(sentence, '\\s+')
-      # sometimes a list() is one level of hierarchy too much
-      words = unlist(word.list)
-      
-      # exclude stop words
-      check <- match(words,exc.words)
-      exc.list <-!is.na(check)
-      words <-words[!exc.list]
-      
-      # compare our words to the dictionaries of positive & negative terms
-      pos.matches = match(words, pos.words)
-      neg.matches = match(words, neg.words)
-      
-      # match() returns the position of the matched term or NA
-      # we just want a TRUE/FALSE:
-      pos.matches = !is.na(pos.matches)
-      neg.matches = !is.na(neg.matches)
-      
-      # and conveniently enough, TRUE/FALSE will be treated as 1/0 by sum():
-      score = sum(pos.matches) - sum(neg.matches)
-      
-      return(score)
-    }, pos.words, neg.words, .progress=.progress )
-    
-    scores.df = data.frame(score=scores, text=sentences)
-    return(scores.df)
-  }
-
-library(plyr)
 library(stringr)
 # Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
 tweet = gsub("(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", " ", tweet)
@@ -67,15 +22,11 @@ tweet = gsub("[ \t]{2,}", " ", tweet)
 tweet = gsub("^\\s+|\\s+$", "", tweet)
 rm(tweet1)
 
-sentences <- tweet
-
-# scores <- score.sentiment(sentences, )
-
 library(tm)
 corp <- Corpus(VectorSource(tweet))
 corp <- tm_map(corp,removeWords,c(stopwords('english'),stopwords('SMART'),'required','responded'))
 tdm <- TermDocumentMatrix(corp) 
-dtm <- DocumentTermMatrix(corp)
+# dtm <- DocumentTermMatrix(corp) # Currently not being used
 
 freq.terms <- findFreqTerms(tdm,lowfreq=250)
 term.freq <- rowSums(as.matrix(tdm))
@@ -93,4 +44,14 @@ library(wordcloud)
 wordcloud(words = df$term, freq = df$freq, random.order=FALSE, rot.per=0.25, 
           colors=brewer.pal(8, "Dark2"))
 
-# Force commit
+library(RTextTools)
+library(e1071)
+
+# Train the model
+mat = as.matrix(tdm)
+classifier = naiveBayes(mat[1:10,], as.factor(tdm[1:10,2]))
+
+# Test the validity
+predicted = predict(classifier, mat[11:15,]); predicted
+table(tdm[11:15, 2], predicted)
+recall_accuracy(tdm[11:15, 2], predicted)
