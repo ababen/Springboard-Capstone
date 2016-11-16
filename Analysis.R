@@ -1,34 +1,39 @@
 # Load dataset
 rm(list=ls())
 setwd("~/R/Springboard-Capstone")
-tweet <- read.csv("how-isis-uses-twitter/tweets.csv")
+tweets <- read.csv("how-isis-uses-twitter/tweets.csv")
 
-tweet <- as.character(tweet$tweets)
-
-library(stringr)
+tweet <- as.character(tweets$tweets) ## Not used
 
 # Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
 
-tweet = gsub("(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", " ", tweet)
-tweet = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", " ", tweet)
-tweet = gsub("#\\w+", " ", tweet)
-tweet = gsub("@\\w+", " ", tweet)
-tweet = gsub("[[:punct:]]", " ", tweet)
-tweet = gsub("[[:digit:]]", " ", tweet)
-tweet <- str_replace_all(tweet,"[^[:graph:]]"," ")
-tweet <- str_replace_all(tweet,'https'," ")
-tweet <- str_replace_all(tweet,'amp'," ")
-tweet1 <- grep('tweet',iconv(tweet,'latin1','ASCII',sub='tweet'))
-tweet  <- tweet[-tweet1]
-tweet = gsub("[ \t]{2,}", " ", tweet)
-tweet = gsub("^\\s+|\\s+$", "", tweet)
-rm(tweet1)
+clean.string <- function(x)
+{
+  library(stringr)
+  tweet = gsub("(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", " ", tweet)
+  tweet = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", " ", tweet)
+  tweet = gsub("#\\w+", " ", tweet)
+  tweet = gsub("@\\w+", " ", tweet)
+  tweet = gsub("[[:punct:]]", " ", tweet)
+  tweet = gsub("[[:digit:]]", " ", tweet)
+  tweet <- str_replace_all(tweet,"[^[:graph:]]"," ")
+  tweet <- str_replace_all(tweet,'https'," ")
+  tweet <- str_replace_all(tweet,'amp'," ")
+  tweet1 <- grep('tweet',iconv(tweet,'latin1','ASCII',sub='tweet'))
+  tweet  <- tweet[-tweet1]
+  tweet = gsub("[ \t]{2,}", " ", tweet)
+  tweet = gsub("^\\s+|\\s+$", "", tweet)
+  rm(tweet1)
+  return(x)
+}
+
+tweet = clean.string(tweet)
 
 library(tm)
 corp <- Corpus(VectorSource(tweet))
 corp <- tm_map(corp,removeWords,c(stopwords('english'),stopwords('SMART'),'required','responded'))
 tdm <- TermDocumentMatrix(corp) 
-dtm <- DocumentTermMatrix(corp) # Currently not being used
+dtm <- DocumentTermMatrix(corp)
 
 freq.terms <- findFreqTerms(tdm,lowfreq=250)
 term.freq <- rowSums(as.matrix(tdm))
@@ -48,26 +53,33 @@ library(wordcloud)
 wordcloud(words = df$term, freq = df$freq, random.order=FALSE, rot.per=0.25, 
           colors=brewer.pal(8, "Dark2"))
 
-library(RTextTools)
-library(e1071)
+# Code from Amit
 
-# AMB: I dont now where I was going with this.
-# Train the model
-## mat = as.matrix(tdm)
-## classifier = naiveBayes(mat[1:10,], as.factor(tdm[1:10,2]))
+library(proxy) # Library required to use method = cosine in dist()
 
-# Test the validity
-## predicted = predict(classifier, mat[11:15,]); predicted
-## table(tdm[11:15, 2], predicted)
-## recall_accuracy(tdm[11:15, 2], predicted)
+cosine <- function(x)
+{
+  cp <- crossprod(x)
+  rtdg <- sqrt(diag(cp))
+  cos <- cp / tcrossprod(rtdg)
+  return(cos)
+}
 
-# Code from Amit
 cleanMatrix = removeSparseTerms(dtm,0.98)
-distMatrix = dist(scale(as_matrix(cleanMatrix)),method = "cosine")
+distMatrix = dist(scale(as.matrix(cleanMatrix)),method = "cosine")
 
 # #The above code will give you a distance matrix between the main keywords
 
 fit = hclust(distMatrix,method = 'ward.D2')
+
+fit.cut = cutree(fit, k=2)
+
+plot(fit)
+plot(fit.cut)
+
+## Pruning the clusters
+
+
 
 # To Do
 # 1. Calculate sentiment for each tweet.
