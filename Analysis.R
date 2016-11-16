@@ -5,7 +5,6 @@ tweets <- read.csv("how-isis-uses-twitter/tweets.csv")
 
 tweet <- as.character(tweets$tweets) ## Not used
 
-<<<<<<< HEAD
 # Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
 
 clean.string <- function(x)
@@ -29,7 +28,7 @@ clean.string <- function(x)
 }
 
 tweet = clean.string(tweet)
-=======
+
 library(stringr)
 
 # Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
@@ -48,17 +47,12 @@ tweet  <- tweet[-tweet1]
 tweet = gsub("[ \t]{2,}", " ", tweet)
 tweet = gsub("^\\s+|\\s+$", "", tweet)
 rm(tweet1)
->>>>>>> bc973fe784d5fcf1fbb39dd364b07bd0926cbb90
 
 library(tm)
 corp <- Corpus(VectorSource(tweet))
 corp <- tm_map(corp,removeWords,c(stopwords('english'),stopwords('SMART'),'required','responded'))
 tdm <- TermDocumentMatrix(corp) 
-<<<<<<< HEAD
 dtm <- DocumentTermMatrix(corp)
-=======
-dtm <- DocumentTermMatrix(corp) # Currently not being used
->>>>>>> bc973fe784d5fcf1fbb39dd364b07bd0926cbb90
 
 freq.terms <- findFreqTerms(tdm,lowfreq=250)
 term.freq <- rowSums(as.matrix(tdm))
@@ -99,15 +93,11 @@ fit = hclust(distMatrix,method = 'ward.D2')
 
 fit.cut = cutree(fit, k=2)
 
-plot(fit)
-plot(fit.cut)
+# plot(fit)
+# plot(fit.cut)
 
 ## Pruning the clusters
 
-
-<<<<<<< HEAD
-
-=======
 # AMB: I dont now where I was going with this.
 # Train the model
 ## mat = as.matrix(tdm)
@@ -118,26 +108,13 @@ plot(fit.cut)
 ## table(tdm[11:15, 2], predicted)
 ## recall_accuracy(tdm[11:15, 2], predicted)
 
-# Code from Amit
-cleanMatrix = removeSparseTerms(dtm,0.98)
-distMatrix = dist(scale(as_matrix(cleanMatrix)),method = "cosine")
-
-# #The above code will give you a distance matrix between the main keywords
-
-fit = hclust(distMatrix,method = 'ward.D2')
-
->>>>>>> bc973fe784d5fcf1fbb39dd364b07bd0926cbb90
 # To Do
 # 1. Calculate sentiment for each tweet.
 #   a. Use keyword dictionaries to determine postivie/neutral/negative words.
 # 2. Add up sentiment over time.
 # 3. Plot time series
 # 4. Create a distance function and pass to hclust()
-<<<<<<< HEAD
-# 5. Create Levenshtein distance/Jacobian distance from Document Matrix
-=======
 # 5. Create Levenstein distance/Jarcovian distance from Document Matrix
->>>>>>> bc973fe784d5fcf1fbb39dd364b07bd0926cbb90
 # 6. Create a Dendrogram (if too many clusters), need to cut the roots of the tree - to get a better visualization.
 # 7. Pruning the cluster: dont use too many clusters, find the optimal amount of clusters.
 # 8. Use "k-means" for recommendations around those words/clusters.
