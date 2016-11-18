@@ -1,60 +1,23 @@
 # Load dataset
 rm(list=ls())
 setwd("~/R/Springboard-Capstone")
+source("clean.R")
 tweets <- read.csv("how-isis-uses-twitter/tweets.csv")
 
-tweet <- as.character(tweets$tweets) ## Not used
+tweet <- as.character(tweets$tweets)
 
 # Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
-
-clean.string <- function(x)
-{
-  library(stringr)
-  tweet = gsub("(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", " ", tweet)
-  tweet = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", " ", tweet)
-  tweet = gsub("#\\w+", " ", tweet)
-  tweet = gsub("@\\w+", " ", tweet)
-  tweet = gsub("[[:punct:]]", " ", tweet)
-  tweet = gsub("[[:digit:]]", " ", tweet)
-  tweet <- str_replace_all(tweet,"[^[:graph:]]"," ")
-  tweet <- str_replace_all(tweet,'https'," ")
-  tweet <- str_replace_all(tweet,'amp'," ")
-  tweet1 <- grep('tweet',iconv(tweet,'latin1','ASCII',sub='tweet'))
-  tweet  <- tweet[-tweet1]
-  tweet = gsub("[ \t]{2,}", " ", tweet)
-  tweet = gsub("^\\s+|\\s+$", "", tweet)
-  rm(tweet1)
-  return(x)
-}
-
 tweet = clean.string(tweet)
 
-library(stringr)
-
-# Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
-
-tweet = gsub("(f|ht)(tp)(s?)(://)(.*)[.|/](.*)", " ", tweet)
-tweet = gsub("(RT|via)((?:\\b\\W*@\\w+)+)", " ", tweet)
-tweet = gsub("#\\w+", " ", tweet)
-tweet = gsub("@\\w+", " ", tweet)
-tweet = gsub("[[:punct:]]", " ", tweet)
-tweet = gsub("[[:digit:]]", " ", tweet)
-tweet <- str_replace_all(tweet,"[^[:graph:]]"," ")
-tweet <- str_replace_all(tweet,'https'," ")
-tweet <- str_replace_all(tweet,'amp'," ")
-tweet1 <- grep('tweet',iconv(tweet,'latin1','ASCII',sub='tweet'))
-tweet  <- tweet[-tweet1]
-tweet = gsub("[ \t]{2,}", " ", tweet)
-tweet = gsub("^\\s+|\\s+$", "", tweet)
-rm(tweet1)
-
 library(tm)
-corp <- Corpus(VectorSource(tweet))
-corp <- tm_map(corp,removeWords,c(stopwords('english'),stopwords('SMART'),'required','responded'))
-tdm <- TermDocumentMatrix(corp) 
-dtm <- DocumentTermMatrix(corp)
+corpus <- Corpus(VectorSource(tweet))
+corpus <- tm_map(corpus, removeWords, c(stopwords('english'), stopwords('SMART'), 'required', 'responded'))
+corpus <- tm_map(corpus, removeWords, c("the","&amp","amp"))
+tdm <- TermDocumentMatrix(corpus) 
+dtm <- DocumentTermMatrix(corpus)
+tdm = removeSparseTerms(dtm, 0.98)
 
-freq.terms <- findFreqTerms(tdm,lowfreq=250)
+freq.terms <- findFreqTerms(tdm, lowfreq = 250)
 term.freq <- rowSums(as.matrix(tdm))
 term.freq <- subset(term.freq, term.freq >= 250)
 df <- data.frame(term = names(term.freq), freq = term.freq)
@@ -84,7 +47,7 @@ cosine <- function(x)
   return(cos)
 }
 
-cleanMatrix = removeSparseTerms(dtm,0.98)
+
 distMatrix = dist(scale(as.matrix(cleanMatrix)),method = "cosine")
 
 # #The above code will give you a distance matrix between the main keywords
