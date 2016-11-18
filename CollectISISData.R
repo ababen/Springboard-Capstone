@@ -26,10 +26,9 @@ library(httpuv)
 source("auth.R")
 
 twitter_token <- create_token(app = "springboard_isis_tweets", # whatever you named app
+
                               consumer_key = "x",
                               consumer_secret = "x")
-
-
 
 
 # Create Twitter Connection
@@ -37,7 +36,7 @@ setup_twitter_oauth(api_key, api_secret, token, token_secret)
 
 setup_twitter_oauth(api_key, api_secret, token, token_secret, credentials_file=NULL)
 
-myapp <- oauth_app("twitter", key = "zjxkSdGnqDCaJy0m5fd7U9y08", secret = "8rVJS1SopYIVqHDj0qSk8pFPfmbw1pLbesP1C4uWnYkxbmy7Hs")
+# myapp <- oauth_app("twitter", key = "XXX", secret = "XXX")
 
 twitter_token <- oauth1.0_token(oauth_endpoints("twitter"), myapp)
 
