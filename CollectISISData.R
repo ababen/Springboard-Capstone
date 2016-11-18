@@ -1,0 +1,6 @@
+install.packages(c("TwitteR", "ROAuth", "RCurl", "Rjsonio", "stringr"))
+library(TwitteR)
+library(ROAuth)
+library(RCurl)
+library(Rjsonio)
+library(stringr)
