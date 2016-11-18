@@ -56,8 +56,11 @@ fit = hclust(distMatrix,method = 'ward.D2')
 
 fit.cut = cutree(fit, k=2)
 
-# plot(fit)
+# plot(fit) # Having performance issues with plotting.
 # plot(fit.cut)
+
+################# Next step: work on using Predictive Coding and SentimentAnalysis.R on the project. ##########
+################# Trying to download Twitter data for ISIS. ###################################################
 
 ## Pruning the clusters
 
