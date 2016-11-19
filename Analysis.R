@@ -15,7 +15,6 @@ corpus <- tm_map(corpus, removeWords, c(stopwords('english'), stopwords('SMART')
 corpus <- tm_map(corpus, removeWords, c("the","&amp","amp"))
 tdm <- TermDocumentMatrix(corpus) 
 dtm <- DocumentTermMatrix(corpus)
-tdm = removeSparseTerms(dtm, 0.98)
 
 freq.terms <- findFreqTerms(tdm, lowfreq = 250)
 term.freq <- rowSums(as.matrix(tdm))
@@ -26,14 +25,29 @@ library("ggplot2")
 
 ### Analysis begins ###
 
-ggplot(df, aes(x = term, y=freq, reorder(term.freq))) +
+# ??? Look up all #hashtags by frequency
+# ??? Look up all @users by frequency
+
+# ??? Tweets by month, tweets by day, Most followed users and location, 
+
+# ??? Diagram of words
+# ??? Diagram of #hashtags
+
+# Classification: Retweets, URL (these can be changed to binary variables)
+# Classifiers to try: MultinomialNB, KNeighbors, RandomForest GradientBoosting
+
+# !!!!!!!!!!!!! I am having problems removing "the", "..." and "this" from this dataset.
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+ggplot(df, aes(x = term, y=freq)) + #reorder(term.freq)
   geom_bar(stat = "identity") + 
   coord_flip() + 
-  labs(title="Top 20 words in ISIS tweets")
+  labs(title = "Top 20 words in ISIS tweets") +
+  theme_classic()
 
 library(wordcloud)
-wordcloud(words = df$term, freq = df$freq, random.order=FALSE, rot.per=0.25, 
-          colors=brewer.pal(8, "Dark2"))
+wordcloud(words = df$term, freq = df$freq, random.order = FALSE, rot.per = 0.25, 
+          colors = brewer.pal(8, "Dark2"))
 
 # Code from Amit
 
@@ -47,7 +61,7 @@ cosine <- function(x)
   return(cos)
 }
 
-
+tdm = removeSparseTerms(dtm, 0.98)
 distMatrix = dist(scale(as.matrix(cleanMatrix)),method = "cosine")
 
 # #The above code will give you a distance matrix between the main keywords
