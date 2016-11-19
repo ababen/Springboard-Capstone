@@ -25,9 +25,25 @@ library("ggplot2")
 
 ### Analysis begins ###
 
+<<<<<<< HEAD
 # !!!!!!!!!!!!! I am having problems removing "the", "..." and "this" from this dataset.
 
 # cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7") <- Not being used.
+=======
+# ??? Look up all #hashtags by frequency
+# ??? Look up all @users by frequency
+
+# ??? Tweets by month, tweets by day, Most followed users and location, 
+
+# ??? Diagram of words
+# ??? Diagram of #hashtags
+
+# Classification: Retweets, URL (these can be changed to binary variables)
+# Classifiers to try: MultinomialNB, KNeighbors, RandomForest GradientBoosting
+
+# !!!!!!!!!!!!! I am having problems removing "the", "..." and "this" from this dataset.
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+>>>>>>> db39509793c95fbf08f9cabf67f015dc719f49f2
 
 ggplot(df, aes(x = term, y=freq)) + #reorder(term.freq)
   geom_bar(stat = "identity") + 
