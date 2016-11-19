@@ -14,10 +14,10 @@ clean.string <- function(x)
   tweet <- str_replace_all(tweet,"the"," ")
   tweet <- str_replace_all(tweet,"..."," ")
   tweet <- str_replace_all(tweet,'&amp'," ")
-  # tweet1 <- grep('tweet',iconv(tweet,'latin1','ASCII',sub='tweet'))
+  tweet1 <- grep('tweet',iconv(tweet,'latin1','ASCII',sub='tweet'))
   tweet  <- tweet[-tweet1]
   tweet = gsub("[ \t]{2,}", " ", tweet)
   tweet = gsub("^\\s+|\\s+$", "", tweet)
- # rm(tweet1)
+  rm(tweet1)
   return(x)
 }
