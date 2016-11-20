@@ -2,9 +2,9 @@
 rm(list=ls())
 setwd("~/R/Springboard-Capstone")
 source("clean.R")
-tweets <- read.csv("how-isis-uses-twitter/tweets.csv")
+tweets.data <- read.csv("how-isis-uses-twitter/tweets.csv")
 
-tweet <- as.character(tweets$tweets)
+tweet <- as.character(tweets.data$tweets)
 
 # Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
 tweet = clean.string(tweet)
@@ -25,12 +25,40 @@ library("ggplot2")
 
 ### Analysis begins ###
 
-<<<<<<< HEAD
 # !!!!!!!!!!!!! I am having problems removing "the", "..." and "this" from this dataset.
 
-# cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7") <- Not being used.
-=======
+tweets.fans = tweets.data %>% select(name, followers, tweets) %>%
+  group_by(name) %>%
+  summarize(n_followers = max(followers), n_tweets = n())
+
+wss = numeric(15)
+for (k in 1:15){
+  wss[k] = sum(kmeans(as.matrix(tweets.fans[ , 2:3]), centers = k, nstart = 25)$withinss)
+  
+}
+
+set.seed(1)
+ISIS_Cluster = kmeans(as.matrix(tweets.fans[ , 2:3]), 4, nstart =  20)
+scatter = tweets.fans %>%
+  ggplot(aes(n_tweets, n_followers)) +
+    geom_point(aes(color = factor(ISIS_Cluster$cluster))) +
+    geom_text(aes(label = ifelse(n_followers > 7000 | n_tweets > 7000, as.character(name), " ")), vjust = 1.5)
+    #guides(color = FALSE) +
+    #ggtitle('Tweets Activity vs. Influence')
+
 # ??? Look up all #hashtags by frequency
+
+hash = tweets.data %>%
+  mutate(hash = str_extract(tweets, "#\\w+")) %>%
+  select(hash) %>%
+  filter(!is.na(hash)) %>%
+  unnest(hash) %>%
+  group_by(hash) %>%
+  summarize(n_hash=n()) %>%
+  arrange(desc(n_hash))
+hash %>%
+  head(10)
+
 # ??? Look up all @users by frequency
 
 # ??? Tweets by month, tweets by day, Most followed users and location, 
@@ -42,8 +70,6 @@ library("ggplot2")
 # Classifiers to try: MultinomialNB, KNeighbors, RandomForest GradientBoosting
 
 # !!!!!!!!!!!!! I am having problems removing "the", "..." and "this" from this dataset.
-cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
->>>>>>> db39509793c95fbf08f9cabf67f015dc719f49f2
 
 ggplot(df, aes(x = term, y=freq)) + #reorder(term.freq)
   geom_bar(stat = "identity") + 
@@ -90,6 +116,8 @@ fit.cut = cutree(fit, k=2)
 # Show difference Cross Validation Mean Scores between Naive Bayes, KN Neighbors, Random Forrest and Gradient Boosting
 
 # Develop an ISIS vocabulary for sentiment analysis.
+
+# Kaggle: Sentiment Analysis: Which clergy do pro-ISIS fanboys quote the most and which ones do they hate the most? Search the tweets for names of prominent clergy and classify the tweet as positive, negative, or neutral and if negative, include the reasons why. Examples of clergy they like the most: "Anwar Awlaki", "Ahmad Jibril", "Ibn Taymiyyah", "Abdul Wahhab". Examples of clergy that they hate the most: "Hamza Yusuf", "Suhaib Webb", "Yaser Qadhi", "Nouman Ali Khan", "Yaqoubi".
 
 # plot(fit) # Having performance issues with plotting.
 # plot(fit.cut)
