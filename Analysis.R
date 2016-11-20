@@ -63,6 +63,8 @@ hash %>%
 
 # ??? Tweets by month, tweets by day, Most followed users and location, 
 
+# ??? # of accounts by month
+
 # ??? Diagram of words
 # ??? Diagram of #hashtags
 
