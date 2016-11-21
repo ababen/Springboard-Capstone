@@ -1,21 +1,27 @@
 # Load dataset
 rm(list=ls())
 setwd("~/R/Springboard-Capstone")
-source("clean.R")
+source("functions.R")
 tweets.data <- read.csv("how-isis-uses-twitter/tweets.csv")
-
-tweet <- as.character(tweets.data$tweets)
 
 library(tm)
 
 # Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
+tweet <- as.character(tweets.data$tweets)
+tweet = tolower(tweet)
 tweet.clean = clean.string(tweet)
 
-corpus <- Corpus(VectorSource(tweet.clean))
+corpus <- Corpus(VectorSource(tweet))
 corpus <- tm_map(corpus, removeWords, c(stopwords('english'), stopwords('SMART'), 'required', 'responded'))
-corpus <- tm_map(corpus, removeNumbers, removePunctuation, removeSparseTerms, stripWhitespace)
+corpus <- tm_map(corpus, removeNumbers)
+corpus <- tm_map(corpus, removePunctuation)
+corpus <- tm_map(corpus, stripWhitespace)
 tdm <- TermDocumentMatrix(corpus) 
 dtm <- DocumentTermMatrix(corpus)
+tdm.sparse <- removeSparseTerms(tdm, 0.98)
+
+plot(tdm.sparse)
+install.packages("Rgraphviz")
 
 tweet.freq_terms <- findFreqTerms(tdm, lowfreq = 250)
 tweet.term_freq <- rowSums(as.matrix(tdm))
@@ -176,8 +182,6 @@ for(i in 1:k){
 # Kaggle: Sentiment Analysis: Which clergy do pro-ISIS fanboys quote the most and which ones do they hate the most? Search the tweets for names of prominent clergy and classify the tweet as positive, negative, or neutral and if negative, include the reasons why. Examples of clergy they like the most: "Anwar Awlaki", "Ahmad Jibril", "Ibn Taymiyyah", "Abdul Wahhab". Examples of clergy that they hate the most: "Hamza Yusuf", "Suhaib Webb", "Yaser Qadhi", "Nouman Ali Khan", "Yaqoubi".
 
 # Next step: work on using Predictive Coding and SentimentAnalysis.R on the project. #
-
-
 
 # To Do
 # 1. Calculate sentiment for each tweet.
