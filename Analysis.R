@@ -3,6 +3,8 @@ rm(list=ls())
 setwd("~/R/Springboard-Capstone")
 source("functions.R")
 tweets.data <- read.csv("how-isis-uses-twitter/tweets.csv")
+
+# Dataset from https://github.com/Dpananos/How-Isis-Uses-Twitter/blob/master/attack_dates.csv
 attacks.data <- read.csv("other/attack_dates.csv")
 
 library(tm)
