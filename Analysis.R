@@ -44,7 +44,7 @@ tweets.data %>%
   summarize(n_followers = max(followers), n_tweets = n()) %>%
   arrange(desc(n_tweets)) %>%
   top_n(10, n_tweets) -> tweets.fans ## Add column here with percent of total.
-View(tweets.fans)
+plot.data.frame(tweets.fans)
 
 #----------------------Remove this------------------------------
 k = 0
@@ -54,13 +54,17 @@ for (k in 1:15){
   
 }
 
+
+#----------------------Remove this------------------------------
+
+# Most tweets and influencer
+####### To Do: Insert Caption, get more names to appear #########
 set.seed(1)
 ISIS_Cluster = kmeans(as.matrix(tweets.fans[ , 2:3]), 4, nstart =  20)
 tweets.fans %>%
   ggplot(aes(n_tweets, n_followers)) +
-    geom_point(aes(color = factor(ISIS_Cluster$cluster))) +
-    geom_text(aes(label = ifelse(n_followers > 7000 | n_tweets > 7000, as.character(username), " ")), vjust = 1.5)
-#----------------------Remove this------------------------------
+  geom_point(aes(color = factor(ISIS_Cluster$cluster))) +
+  geom_text(aes(label = ifelse(n_followers > 7000 | n_tweets > 7000, as.character(username), " ")), vjust = 1.5)
 
 # Look up all #hashtags by frequency
 
@@ -78,6 +82,9 @@ tweets.hash %>%
   head(20)
 
 # Look up all @users by frequency
+
+###################################################
+####### To Do: Show only the top few rows #########
 
 tweets.data %>% 
   select(name, username, followers, tweets) %>%
@@ -106,11 +113,15 @@ attacks.data$MonthDayYear = parse_date_time(attacks.data$Date, orders="%m/%d/%Y"
           month = format(time, "%m"),
           day = format(time, "%d"), 
           hour = format(time, "%H")) -> tweets.time 
-   
+ 
+ ###################################################
+ ####### To Do: Add title #########
+ 
 tweets.time %>%
    group_by(year) %>%
    ggplot(aes(month, fill = year)) +
    geom_bar(position = "stack") +
+   ggtitle("Tweet Frequency") +
    theme(axis.text = element_text(size = 14), 
          axis.title = element_text(size = 16), 
          legend.title=element_text(size = 14),
@@ -170,10 +181,10 @@ networkData <- data.frame(attacks, tweets)
 simpleNetwork(networkData, zoom = TRUE)
 
 # with sans-serif 
-simpleNetwork(networkData, fontFamily = "sans-serif")
+# simpleNetwork(networkData, fontFamily = "sans-serif")
 
 # with another font 
-simpleNetwork(networkData, fontFamily = "fantasy")
+# simpleNetwork(networkData, fontFamily = "fantasy")
 
 #---------------------- Things to try --------------------------
 # ??? Diagram of #hashtags
