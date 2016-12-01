@@ -3,6 +3,7 @@ rm(list=ls())
 setwd("~/R/Springboard-Capstone")
 source("functions.R")
 tweets.data <- read.csv("how-isis-uses-twitter/tweets.csv")
+attacks.data <- read.csv("other/attack_dates.csv")
 
 library(tm)
 
@@ -78,35 +79,55 @@ tweets.hash %>%
 
 # Look up all @users by frequency
 
-tweets.users = tweets.data %>% 
+tweets.data %>% 
   select(name, username, followers, tweets) %>%
   group_by(name, username) %>%
   summarize(n_followers = max(followers), n_tweets = n()) %>%
   filter(n_tweets > 100) %>%
-  arrange(desc(n_tweets))
+  arrange(desc(n_tweets)) -> tweets.users
 View(tweets.users)
 
 # ??? Tweets by month, tweets by day, Most followed users and location, 
 
+# Going to cros-reference tweets with terrorist attacks
+
 library(lubridate)
 
- tweets.data %>%
-  mutate(time = parse_date_time(time, orders="%m/%d/%Y %H:%M"),
-         year = format(time, "%Y"),
-         month = format(time, "%m"),
-         day = format(time, "%d"), 
-         hour = format(time, "%H")) -> tweets.time
+attacks.data$MonthDayYear = parse_date_time(attacks.data$Date, orders="%m/%d/%Y")
+ 
+ attacks.data %>%
+  mutate(year = format(MonthDayYear, "%Y"), 
+         month = format(MonthDayYear, "%m"), 
+         day = format(MonthDayYear, "%d"))-> attacks.data
 
+ tweets.data %>%
+   mutate(time = parse_date_time(time, orders="%m/%d/%Y %H:%M"),
+          year = format(time, "%Y"),
+          month = format(time, "%m"),
+          day = format(time, "%d"), 
+          hour = format(time, "%H")) -> tweets.time 
+   
 tweets.time %>%
    group_by(year) %>%
-   ggplot(aes(month, fill=year)) +
-   geom_bar(position="stack") +
-   theme(axis.text=element_text(size=14), 
-         axis.title=element_text(size=16), 
-         legend.title=element_text(size=14),
+   ggplot(aes(month, fill = year)) +
+   geom_bar(position = "stack") +
+   theme(axis.text = element_text(size = 14), 
+         axis.title = element_text(size = 16), 
+         legend.title=element_text(size = 14),
          legend.key.size=unit(1,'cm'),
-         legend.text=element_text(size=14)) 
- 
+         legend.text=element_text(size = 14)) 
+
+attacks.data %>%
+  group_by(year) %>%
+  ggplot(aes(x = month, y = day, fill = year)) +
+  geom_point() +
+  ggtitle("Major Attacks") +
+  theme(axis.text = element_text(size = 14), 
+        axis.title = element_text(size = 16), 
+        legend.title=element_text(size = 14),
+        legend.key.size=unit(1,'cm'),
+        legend.text=element_text(size = 14)) 
+
 ggplot(tdm.freq, aes(x = term, y = freq)) + #reorder(term.freq)
   geom_bar(stat = "identity") + 
   coord_flip() + 
@@ -131,26 +152,30 @@ fit = hclust(distMatrix,method = 'ward.D2')
 fit.cut = cutree(fit, k = 2)
 plot(fit)
 
-#----------------------Remove this------------------------------
-#
-#k = 3
-#kMeans = kmeans(tdm.sparse, k)
-#round(kMeans$centers, digits = 3)
-
-#for(i in 1:k){
-#  cat(paste(" cluster", i, ": ", sep = ""))
-#  s = sort(kMeans$centers[i, ], decreasing = T)
-#  cat(names(s)[1:3], "\n")
-#}
-#----------------------Remove this------------------------------
-
-library(igraph)
-
+# library(igraph) <- Not being used
 
 library(networkD3)
+# attacks should be a vector of all dates of attacks. 86 in length
+attacks = attacks.data$MonthDayYear
+src <- c("A", "A", "A", "A", "B", "B", "C", "C", "D")
+
+tweets = as.POSIXct(strptime(tweets.time$time, "%Y-%m-%d"))
+target <- c("B", "C", "D", "J", "E", "F", "G", "H", "I")
+
+networkData <- data.frame(src, target)
+networkData <- data.frame(attacks, tweets)
+
+# inner_join(src, target, by = src) I tried all sorts of combinations and different ways including plyr
+
+simpleNetwork(networkData, zoom = TRUE)
+
+# with sans-serif 
+simpleNetwork(networkData, fontFamily = "sans-serif")
+
+# with another font 
+simpleNetwork(networkData, fontFamily = "fantasy")
 
 #---------------------- Things to try --------------------------
-# ??? Diagram of words
 # ??? Diagram of #hashtags
 # https://eight2late.wordpress.com/2015/09/29/a-gentle-introduction-to-topic-modeling-using-r/
 # ??? # of accounts by month
