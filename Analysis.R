@@ -9,22 +9,21 @@ attacks.data <- read.csv("other/attack_dates.csv")
 
 library(tm)
 
-# Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english characters and spaces
+# Removing links, retweets, hashtags, @people, punctuations, numbers, emojis, non-english 
+#characters and spaces
 tweet <- as.character(tweets.data$tweets)
 tweet = tolower(tweet)
 tweet.clean = clean.string(tweet)
 
 corpus <- Corpus(VectorSource(tweet))
-corpus <- tm_map(corpus, removeWords, c(stopwords('english'), stopwords('SMART'), 'required', 'responded'))
+corpus <- tm_map(corpus, removeWords, c(stopwords('english'), stopwords('SMART'), 
+                                          'required', 'responded'))
 corpus <- tm_map(corpus, removeNumbers)
 corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, stripWhitespace)
 tdm <- TermDocumentMatrix(corpus) 
 dtm <- DocumentTermMatrix(corpus)
 tdm.sparse <- removeSparseTerms(tdm, 0.98)
-
-plot(tdm.sparse)
-# install.packages("Rgraphviz") <-remove this
 
 tweet.freq_terms <- findFreqTerms(tdm, lowfreq = 250)
 tweet.term_freq <- rowSums(as.matrix(tdm))
@@ -45,55 +44,47 @@ tweets.data %>%
   group_by(username) %>%
   summarize(n_followers = max(followers), n_tweets = n()) %>%
   arrange(desc(n_tweets)) %>%
-  top_n(10, n_tweets) -> tweets.fans ## Add column here with percent of total.
-plot.data.frame(tweets.fans)
+  top_n(10, n_tweets) -> tweets.fans 
+View(tweets.fans)
 
-#----------------------Remove this------------------------------
-k = 0
-wss = numeric(15)
-for (k in 1:15){
-  wss[k] = sum(kmeans(as.matrix(tweets.fans[ , 2:3]), centers = k, nstart = 25)$withinss)
-  
-}
+library(grid)
 
+# Show the disparity between volume of tweets
 
-#----------------------Remove this------------------------------
-
-# Most tweets and influencer
-####### To Do: Insert Caption, get more names to appear #########
-set.seed(1)
-ISIS_Cluster = kmeans(as.matrix(tweets.fans[ , 2:3]), 4, nstart =  20)
 tweets.fans %>%
-  ggplot(aes(n_tweets, n_followers)) +
-  geom_point(aes(color = factor(ISIS_Cluster$cluster))) +
-  geom_text(aes(label = ifelse(n_followers > 7000 | n_tweets > 7000, as.character(username), " ")), vjust = 1.5)
+  ggplot(aes(x = n_tweets, y = n_followers)) +
+  geom_point(color = "Blue", shape = 1, size = 6, stroke = 1.25, aes()) + 
+  geom_text(aes(label = ifelse(n_followers > 5000 | n_tweets > 500, as.character(username), " ")), vjust = 2) +
+  scale_fill_manual() +
+  xlab("No. of Tweets") +
+  ylab("No. of Followers") +
+  ggtitle("Top users") +
+  theme_light()
 
 # Look up all #hashtags by frequency
 
 library(stringr)
 
-tweets.hash = tweets.data %>%
+tweets.data %>%
   mutate(tweets.hash = str_extract(tweets, "#\\w+")) %>%
   select(tweets.hash) %>%
   filter(!is.na(tweets.hash)) %>%
-  ## unnest(hash) %>%
   group_by(tweets.hash) %>%
   summarize(n_hashtags = n()) %>%
-  arrange(desc(n_hashtags))
-tweets.hash %>%
-  head(20)
+  arrange(desc(n_hashtags)) %>%
+  head(26) -> tweets.hash26
+  tweets.hash = head(tweets.hash26, 20)
+View(tweets.hash)
 
-# Look up all @users by frequency
-
-###################################################
-####### To Do: Show only the top few rows #########
+# Look up all @users (including name) by frequency
 
 tweets.data %>% 
   select(name, username, followers, tweets) %>%
   group_by(name, username) %>%
   summarize(n_followers = max(followers), n_tweets = n()) %>%
   filter(n_tweets > 100) %>%
-  arrange(desc(n_tweets)) -> tweets.users
+  arrange(desc(n_tweets)) %>%
+  head(20) -> tweets.users
 View(tweets.users)
 
 # ??? Tweets by month, tweets by day, Most followed users and location, 
@@ -118,6 +109,7 @@ attacks.data$MonthDayYear = parse_date_time(attacks.data$Date, orders="%m/%d/%Y"
  
  ###################################################
  ####### To Do: Add title #########
+ ####### To Do: I would love to redo this to be more timeseries #########
  
 tweets.time %>%
    group_by(year) %>%
@@ -132,6 +124,7 @@ tweets.time %>%
 
 attacks.data %>%
   group_by(year) %>%
+  filter(year > 2014) %>%
   ggplot(aes(x = month, y = day, fill = year)) +
   geom_point() +
   ggtitle("Major Attacks") +
@@ -141,20 +134,20 @@ attacks.data %>%
         legend.key.size=unit(1,'cm'),
         legend.text=element_text(size = 14)) 
 
-ggplot(tdm.freq, aes(x = term, y = freq)) + #reorder(term.freq)
-  geom_bar(stat = "identity") + 
-  coord_flip() + 
-  labs(title = "Top 20 words in ISIS tweets") +
-  theme_classic() -> plot_top20words
-ggplotly(plot_top20words)
+tdm.freq %>%
+  arrange(term) %>%
+  ggplot(aes(x = term, y = freq)) + 
+    geom_bar(stat = "identity", fill = "Light Blue") + 
+    coord_flip() + 
+    labs(title = "Top 20 words in ISIS tweets") +
+    theme_classic() -> plot_top20words
+  ggplotly(plot_top20words)
 
 library(wordcloud)
 wordcloud(words = tdm.freq$term, freq = tdm.freq$freq, random.order = FALSE, rot.per = 0.25, 
           colors = brewer.pal(8, "Dark2"))
 
 ### Code from Amit
-
-# library(tm) <-remove this
 
 tdm.sparse = removeSparseTerms(tdm, 0.98)
 
@@ -165,28 +158,36 @@ fit = hclust(distMatrix,method = 'ward.D2')
 fit.cut = cutree(fit, k = 2)
 plot(fit)
 
+########################################################################
+########################################################################
+########################################################################
+
+df = as.data.frame(fit$labels)
+df$b = hashtags = tweets.hash26
+df$freq = tdm.freq
+
 # library(igraph) <- Not being used
+words <- read.csv("other/words.csv")
 
 library(networkD3)
+# Sample
+# src <- c("A", "A", "A", "A", "B", "B", "C", "C", "D")
+# target <- c("B", "C", "D", "J", "E", "F", "G", "H", "I")
+# networkData <- data.frame(src, target)
 # attacks should be a vector of all dates of attacks. 86 in length
-attacks = attacks.data$MonthDayYear
-src <- c("A", "A", "A", "A", "B", "B", "C", "C", "D")
 
-tweets = as.POSIXct(strptime(tweets.time$time, "%Y-%m-%d"))
-target <- c("B", "C", "D", "J", "E", "F", "G", "H", "I")
-
-networkData <- data.frame(src, target)
-networkData <- data.frame(attacks, tweets)
-
-# inner_join(src, target, by = src) I tried all sorts of combinations and different ways including plyr
-
+hashtags = tweets.hash26[ ,1]
+tweets = fit$labels
+networkData <- data.frame(tweets, hashtags)
+networkData <- data.frame(hashtags, tweets)
 simpleNetwork(networkData, zoom = TRUE)
+simpleNetwork(words, zoom = TRUE, )
+simpleNetwork(networkData, fontFamily = "sans-serif")
+simpleNetwork(networkData, fontFamily = "fantasy")
 
-# with sans-serif 
-# simpleNetwork(networkData, fontFamily = "sans-serif")
-
-# with another font 
-# simpleNetwork(networkData, fontFamily = "fantasy")
+########################################################################
+########################################################################
+########################################################################
 
 #---------------------- Things to try --------------------------
 # ??? Diagram of #hashtags
@@ -194,4 +195,9 @@ simpleNetwork(networkData, zoom = TRUE)
 # ??? # of accounts by month
 # Classification: Retweets, URL (these can be changed to binary variables)
 # Classifiers to try: MultinomialNB, KNeighbors, RandomForest GradientBoosting
-# Kaggle: Sentiment Analysis: Which clergy do pro-ISIS fanboys quote the most and which ones do they hate the most? Search the tweets for names of prominent clergy and classify the tweet as positive, negative, or neutral and if negative, include the reasons why. Examples of clergy they like the most: "Anwar Awlaki", "Ahmad Jibril", "Ibn Taymiyyah", "Abdul Wahhab". Examples of clergy that they hate the most: "Hamza Yusuf", "Suhaib Webb", "Yaser Qadhi", "Nouman Ali Khan", "Yaqoubi".
+# Kaggle: Sentiment Analysis: Which clergy do pro-ISIS fanboys quote the most and 
+# which ones do they hate the most? Search the tweets for names of prominent clergy and 
+# classify the tweet as positive, negative, or neutral and if negative, include the reasons why. 
+# Examples of clergy they like the most: "Anwar Awlaki", "Ahmad Jibril", "Ibn Taymiyyah", "
+# Abdul Wahhab". Examples of clergy that they hate the most: "Hamza Yusuf", "Suhaib Webb", 
+# "Yaser Qadhi", "Nouman Ali Khan", "Yaqoubi".
