@@ -3,7 +3,7 @@ rm(list=ls())
 setwd("~/R/Springboard-Capstone")
 source("functions.R")
 tweets.data <- read.csv("how-isis-uses-twitter/tweets.csv")
-
+  eig
 # Dataset from https://github.com/Dpananos/How-Isis-Uses-Twitter/blob/master/attack_dates.csv
 attacks.data <- read.csv("other/attack_dates.csv")
 
@@ -23,8 +23,8 @@ corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, stripWhitespace)
 tdm <- TermDocumentMatrix(corpus) 
 dtm <- DocumentTermMatrix(corpus)
-tdm.sparse <- removeSparseTerms(tdm, 0.98)
 
+tdm.sparse <- removeSparseTerms(tdm, 0.98)
 tweet.freq_terms <- findFreqTerms(tdm, lowfreq = 250)
 tweet.term_freq <- rowSums(as.matrix(tdm))
 tweet.term_freq <- subset(tweet.term_freq, tweet.term_freq >= 250)
@@ -148,7 +148,6 @@ wordcloud(words = tdm.freq$term, freq = tdm.freq$freq, random.order = FALSE, rot
           colors = brewer.pal(8, "Dark2"))
 
 ### Code from Amit
-
 tdm.sparse = removeSparseTerms(tdm, 0.98)
 
 # #The above code will give you a distance matrix between the main keywords
@@ -157,47 +156,3 @@ distMatrix = dist(scale(as.matrix(tdm.sparse)),method = "cosine")
 fit = hclust(distMatrix,method = 'ward.D2')
 fit.cut = cutree(fit, k = 2)
 plot(fit)
-
-########################################################################
-########################################################################
-########################################################################
-
-df = as.data.frame(fit$labels)
-df$b = hashtags = tweets.hash26
-df$freq = tdm.freq
-
-# library(igraph) <- Not being used
-words <- read.csv("other/words.csv")
-
-library(networkD3)
-# Sample
-# src <- c("A", "A", "A", "A", "B", "B", "C", "C", "D")
-# target <- c("B", "C", "D", "J", "E", "F", "G", "H", "I")
-# networkData <- data.frame(src, target)
-# attacks should be a vector of all dates of attacks. 86 in length
-
-hashtags = tweets.hash26[ ,1]
-tweets = fit$labels
-networkData <- data.frame(tweets, hashtags)
-networkData <- data.frame(hashtags, tweets)
-simpleNetwork(networkData, zoom = TRUE)
-simpleNetwork(words, zoom = TRUE, )
-simpleNetwork(networkData, fontFamily = "sans-serif")
-simpleNetwork(networkData, fontFamily = "fantasy")
-
-########################################################################
-########################################################################
-########################################################################
-
-#---------------------- Things to try --------------------------
-# ??? Diagram of #hashtags
-# https://eight2late.wordpress.com/2015/09/29/a-gentle-introduction-to-topic-modeling-using-r/
-# ??? # of accounts by month
-# Classification: Retweets, URL (these can be changed to binary variables)
-# Classifiers to try: MultinomialNB, KNeighbors, RandomForest GradientBoosting
-# Kaggle: Sentiment Analysis: Which clergy do pro-ISIS fanboys quote the most and 
-# which ones do they hate the most? Search the tweets for names of prominent clergy and 
-# classify the tweet as positive, negative, or neutral and if negative, include the reasons why. 
-# Examples of clergy they like the most: "Anwar Awlaki", "Ahmad Jibril", "Ibn Taymiyyah", "
-# Abdul Wahhab". Examples of clergy that they hate the most: "Hamza Yusuf", "Suhaib Webb", 
-# "Yaser Qadhi", "Nouman Ali Khan", "Yaqoubi".

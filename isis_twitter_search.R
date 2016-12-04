@@ -31,9 +31,7 @@ twitter_token <- create_token(app = "springboard_isis_tweets", # whatever you na
                               consumer_secret = consumer_secret_me)
 
 # Run Twitter Search. Format is searchTwitter("Search Terms", n=100, lang="en", geocode="lat,lng", also accepts since and until).
-tw <- search_tweets("Obamacare OR ACA OR 'Affordable Care Act' OR #ACA", n = 10000, token = twitter_token, lang = "en")
-
-########## I searched for Obamacare as a proof of concept, because I was having issues targeting ISIS tweets.
+tw <- search_tweets("Dawla OR Baqiyyah OR Amaq OR Wilayat OR al-Baghdadi OR Awlaki", n = 10000, token = twitter_token, lang = "en")
 
 # Transform tweets list into a data frame
 write.csv(tw, file = "tw.csv")
