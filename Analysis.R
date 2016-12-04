@@ -156,3 +156,49 @@ distMatrix = dist(scale(as.matrix(tdm.sparse)),method = "cosine")
 fit = hclust(distMatrix,method = 'ward.D2')
 fit.cut = cutree(fit, k = 2)
 plot(fit)
+
+library(networkD3)
+
+# Build a network of users and who they re-tweet.
+
+username <- as.character(tweets.data$username)
+tweets <- as.character(tweets.data$tweets)
+retweets = data.frame(username, tweets)
+
+
+# regular expressions to find retweets
+grep("(RT|via)((?:\\b\\W*@\\w+)+)", retweets$tweets, ignore.case=TRUE, value=TRUE)
+
+# which tweets are retweets
+rt_patterns = grep("(RT|via)((?:\\b\\W*@\\w+)+)", retweets$tweets, ignore.case=TRUE)
+
+# show retweets (these are the ones we want to focus on)
+retweets$tweets[rt_patterns]
+
+# create list to store user names
+who_retweet = as.list(1:length(rt_patterns))
+who_post = as.list(1:length(rt_patterns))
+
+# for loop
+for (i in 1:length(rt_patterns))
+{ 
+  i = 1
+  # get tweet with retweet entity
+  twit = retweets$tweets[[rt_patterns[i]]]
+  # get retweet source 
+  poster = str_extract_all(retweets$tweets, "(RT|via)((?:\\b\\W*@\\w+)+)") 
+  #remove ':'
+  poster = gsub(":", "", unlist(poster)) 
+  # name of retweeted user
+  who_post[[i]] = gsub("(RT @|via @)", "", poster, ignore.case=TRUE) 
+  # name of retweeting user 
+  who_retweet[[i]] = rep(retweets$username, length(poster)) 
+}
+
+# unlist
+who_post = unlist(who_post)
+who_retweet = unlist(who_retweet)
+
+network = data.frame(who_post, who_retweet)
+
+simpleNetwork(network = -500 , opacity = 0.6, zoom = T, fontSize = 10)
